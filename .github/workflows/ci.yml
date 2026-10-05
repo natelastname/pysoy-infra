@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Seed validation secrets
+        run: |
+          cp .env.example .env
+          mkdir -p secrets
+          printf 'ci-secret\n' > secrets/django_secret_key
+          printf 'ci-password\n' > secrets/postgres_password
+      - name: Validate Compose model
+        run: docker compose config --quiet
+      - name: Check shell syntax
+        run: bash -n scripts/*.sh
